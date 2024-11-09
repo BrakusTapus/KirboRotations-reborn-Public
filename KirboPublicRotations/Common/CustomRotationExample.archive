@@ -1,0 +1,49 @@
+﻿#if DEBUG
+#pragma warning disable CS8601 // 'act' can be null it's okay, dont be so worried for me IDE, you're not even my real dad!
+#endif
+
+namespace KirboRotations;
+
+[BetaRotation]
+[Api(3)]
+[Rotation($"Example Custom Rotation", CombatType.PvE, GameVersion = "0x0x0x0", Description = "An example description for the example Custom Rotation, for example: 'This is just an example!'")]
+[LinkDescription("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3BCylKUHNtb9jmnJi4OMQB4zImS_swIKg9Q&s")]
+public sealed class CustomRotationExample : MonkRotation
+{
+    [System.ComponentModel.Description("This method can be used to to draw ImGuiNET elements, either for the end user or the Rotation Developer to display extra information or general debugging.")]
+    public override void DisplayStatus()
+    {
+        ImGui.BeginChild("The CustomRotation's status window", new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().Y), border: true, ImGuiWindowFlags.AlwaysAutoResize);
+        ImGui.Text("Rotation: " + Name + " "); ImGui.SameLine(); ImGui.TextDisabled(Description);
+
+        //TODO- Add GroupBox with a border that lists all available actions.
+        //TODO- Add GroupBox with a border that lists general help information for debugging.
+
+        ImGui.EndChild();
+    }
+
+    [System.ComponentModel.Description(
+        "This method is called by the method 'CustomRotation.GCD()' in RotationSolverReborn. " +
+                    "Then 'CustomRotation.GCD()' is used as a variable 'gcdAction' in the method 'Invoke(out IAction? gcdAction)' " +
+                    "Then 'Invoke(out IAction? gcdAction)' is  used as a variable 'newAction' in the method 'CustomRotation.TryInvoke(out IAction? newAction, out IAction? gcdAction)' " +
+                    "Then 'TryInvoke(out IAction? newAction, out IAction? gcdAction)' is used in the 'ActionUpdater.UpdateNextAction()' method. " +
+                    "Then 'ActionUpdater.UpdateNextAction();' is called by the 'MajorUpdater.UpdateWork()' method." +
+                    "Then 'MajorUpdater.UpdateWork()' is called by the 'MajorUpdater.FrameworkUpdate(IFramework framework)' method. " +
+                    "Which is an Event that is subscribed too when the plugin (RotationSolverReborn) is loaded into the game."
+    )]
+    protected override bool GeneralGCD(out IAction act)
+    {
+
+        return base.GeneralGCD(out act);
+    }
+
+    protected override bool AntiKnockbackAbility(IAction nextGCD, out IAction? act)
+    {
+        return base.AntiKnockbackAbility(nextGCD, out act);
+    }
+
+    protected override bool AttackAbility(IAction nextGCD, out IAction act)
+    {
+        return base.AttackAbility(nextGCD, out act);
+    }
+}
