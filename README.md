@@ -1,4 +1,4 @@
-# KirboRotations-reborn (Public) ![GitHub all releases](https://img.shields.io/github/downloads/BrakusTapus/KirboRotations-reborn-Public/total)
+# KirboRotations-reborn (Public) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/brakustapus/KirboRotations-reborn-Public/total)
 
 
 ## To be used with [RotationSolverReborn](https://github.com/FFXIV-CombatReborn/RotationSolverReborn)
