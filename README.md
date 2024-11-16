@@ -3,7 +3,7 @@
 
 
 
-![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/:variant/BrakusTapus/KirboRotations-reborn-Public/latest/total)
+<!-- ![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/:variant/BrakusTapus/KirboRotations-reborn-Public/latest/total) -->
 
 
 
