@@ -1,4 +1,5 @@
-# KirboRotations-reborn (Public) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/brakustapus/KirboRotations-reborn-Public/total)
+# KirboRotations-reborn (Public) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/brakustapus/KirboRotations-reborn-Public/total) ![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/BrakusTapus/KirboRotations-reborn-Public/latest/total)
+
 
 
 
