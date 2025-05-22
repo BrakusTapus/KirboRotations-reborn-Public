@@ -1,12 +1,6 @@
 <Project>
     <PropertyGroup>
         <Authors>Kirbo</Authors>
-        <TargetFramework>net8.0-windows</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <PlatformTarget>x64</PlatformTarget>
-        <Platforms>x64</Platforms>
-        <Nullable>enable</Nullable>
-        <LangVersion>latest</LangVersion>
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
         <OutputPath>bin\$(Configuration)\</OutputPath>
