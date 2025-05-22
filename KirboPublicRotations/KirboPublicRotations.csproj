@@ -29,7 +29,6 @@
     <ItemGroup>
       <Folder Include="PvERotations\Healer\" />
       <Folder Include="PvERotations\Melee\" />
-      <Folder Include="PvERotations\Ranged\" />
       <Folder Include="PvERotations\Tank\" />
     </ItemGroup>
 </Project>
