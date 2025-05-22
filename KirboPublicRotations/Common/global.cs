@@ -1,9 +1,16 @@
-﻿global using System.Numerics;
+﻿global using Dalamud.Game.ClientState.JobGauge.Enums;
+global using Dalamud.Game.ClientState.Objects.Types;
+global using Dalamud.Interface;
 global using Dalamud.Interface.Utility;
 global using ImGuiNET;
+global using Newtonsoft.Json;
+global using RotationSolver.Basic;
 global using RotationSolver.Basic.Actions;
 global using RotationSolver.Basic.Attributes;
+global using RotationSolver.Basic.Configuration.RotationConfig;
 global using RotationSolver.Basic.Data;
 global using RotationSolver.Basic.Helpers;
 global using RotationSolver.Basic.Rotations;
 global using RotationSolver.Basic.Rotations.Basic;
+global using System.Numerics;
+global using System.Reflection;
