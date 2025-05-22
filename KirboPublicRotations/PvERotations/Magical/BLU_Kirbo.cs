@@ -1,7 +1,7 @@
 ﻿namespace KirboPublicRotations.PvERotations.Magical;
 
 [BetaRotation]
-[Rotation("Kirbo's BLU", CombatType.PvE, GameVersion = "7.05", Description = "A BLU rotation that causes depression")]
+[Rotation("Kirbo's BLU", CombatType.PvE, GameVersion = "7.21", Description = "A BLU rotation that causes depression")]
 [Api(4)]
 public class BluKirbo : BlueMageRotation
 {
@@ -9,6 +9,17 @@ public class BluKirbo : BlueMageRotation
     public bool Selfdestruct { get; set; } = false;
 
     private static IBaseAction SelfDestructPvE { get; } = new BaseAction((ActionID)11408);
+
+    protected override IBaseAction[] ActiveActions
+    {
+        get
+        {
+            return
+            [
+                SelfDestructPvE
+            ];
+        }
+    }
 
     //GCD actions here.
     protected override bool GeneralGCD(out IAction? act)
