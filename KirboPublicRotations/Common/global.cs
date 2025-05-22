@@ -2,6 +2,8 @@
 global using Dalamud.Game.ClientState.Objects.Types;
 global using Dalamud.Interface;
 global using Dalamud.Interface.Utility;
+global using ECommons.ExcelServices;
+global using ECommons.Logging;
 global using ImGuiNET;
 global using Newtonsoft.Json;
 global using RotationSolver.Basic;
