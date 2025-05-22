@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "slnFolder", "slnFolder", "{B6C00754-54CA-4B08-BB18-DA2BDB34140A}"
 	ProjectSection(SolutionItems) = preProject
 		KirboPublicRotations\Common\CustomRotationExample.archive = KirboPublicRotations\Common\CustomRotationExample.archive
+		.github\workflows\publish.yaml = .github\workflows\publish.yaml
 		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
