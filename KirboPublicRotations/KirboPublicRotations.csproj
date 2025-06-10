@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net9.0-windows</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
-        <AssemblyVersion>1.0.1.00</AssemblyVersion>
+        <AssemblyVersion>7.2.5.0</AssemblyVersion>
         <PlatformTarget>x64</PlatformTarget>
         <Platforms>x64</Platforms>
         <Nullable>enable</Nullable>
