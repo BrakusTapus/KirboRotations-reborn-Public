@@ -4,7 +4,7 @@ using Action = Lumina.Excel.Sheets.Action;
 
 namespace KirboPublicRotations.Helpers;
 
-[Api(4)]
+[Api(5)]
 internal unsafe class CustomRotationEx : MachinistRotation
 {
     private static Action? action = new();
