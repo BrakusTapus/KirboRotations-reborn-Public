@@ -7,14 +7,6 @@ namespace KirboPublicRotations.Helpers;
 [Api(5)]
 internal unsafe class CustomRotationEx : MachinistRotation
 {
-    private static Action? action = new();
-    internal IBaseAction? BaseAction { get; set; }
-
-    private static readonly TargetSystem* targetSystem = FFXIVClientStructs.FFXIV.Client.Game.Control.TargetSystem.Instance();
-    internal TargetSystem* TargetSystem = targetSystem;
-    internal GameObject* GetGameObject = targetSystem->GetTargetObject();
-    internal ObjectKind ObjectKind = targetSystem->GetTargetObject()->GetObjectKind();
-
     #region Limit break
     [System.ComponentModel.Description("Bar Count")]
     internal unsafe static byte CurrentBarCount
@@ -80,7 +72,11 @@ internal unsafe class CustomRotationEx : MachinistRotation
     }
     #endregion
 
-    internal static bool IsTargetNPC = CurrentTarget is IBattleNpc && CurrentTarget.DataId != 8016;
+    /// <summary>
+    /// Property
+    /// Dynamically evaluates if the current target is a BattleNpc.
+    /// </summary>
+    internal static bool IsTargetNPC => CurrentTarget?.ObjectKind == Dalamud.Game.ClientState.Objects.Enums.ObjectKind.BattleNpc;
 
     #region PvP NPC/PC Names
     // Centralized collection of NPC names
