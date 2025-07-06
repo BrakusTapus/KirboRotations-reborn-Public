@@ -11,6 +11,7 @@ namespace KirboPublicRotations.PvPRotations.Ranged;
 [Api(5)]
 internal class MchKirboPvpPublic : MachinistRotation
 {
+    #region Properties
     /// <summary>
     ///     Gets the current Heat Stacks.
     /// </summary>
@@ -36,9 +37,10 @@ internal class MchKirboPvpPublic : MachinistRotation
     private static float PvPTargetWildfireStatusTime => CurrentTarget.StatusTime(true, StatusID.Wildfire_1323);
 #pragma warning restore CS8604 // Possible null reference argument.
     private static float AnalysisStatusTime => Player.StatusTime(true, StatusID.Analysis);
-    //MCH LB
-    private static IBaseAction MarksmansSpitePvP { get; } = new BaseAction((ActionID)29415);
+    #endregion
 
+    #region MCH LB
+    private static IBaseAction MarksmansSpitePvP { get; } = new BaseAction((ActionID)29415);
     private IBaseAction MarksmansSpitePvP2 => _MarksmansSpitePvPCreator.Value;
     private readonly Lazy<IBaseAction> _MarksmansSpitePvPCreator = new Lazy<IBaseAction>(delegate
     {
@@ -56,6 +58,7 @@ internal class MchKirboPvpPublic : MachinistRotation
         action40.Setting = setting40;
         return action40;
     });
+    #endregion
 
     #region Rotation Config
     [RotationConfig(CombatType.PvP, Name = "GuardCancel")]
@@ -68,7 +71,7 @@ internal class MchKirboPvpPublic : MachinistRotation
     public bool LowHPNoBlastCharge { get; set; } = true;
 
     [RotationConfig(CombatType.PvP, Name = "LowHPNoBlastChargeThreshold")]
-    public int LowHPNoBlastChargeThreshold { get; set; } = 22500;
+    public int LowHPNoBlastChargeThreshold { get; set; } = 15000;
 
     [RotationConfig(CombatType.PvP, Name = "AnalysisOnDrill")]
     public bool AnalysisOnDrill { get; set; } = true;
@@ -82,8 +85,8 @@ internal class MchKirboPvpPublic : MachinistRotation
     [RotationConfig(CombatType.PvP, Name = "AnalysisOnChainsaw")]
     public bool AnalysisOnChainsaw { get; set; } = true;
 
-    [RotationConfig(CombatType.PvP, Name = "ManualBishop")]
-    public bool ManualBishop { get; set; } = false;
+    //[RotationConfig(CombatType.PvP, Name = "ManualBishop")]
+    //public bool ManualBishop { get; set; } = false;
 
     [RotationConfig(CombatType.PvP, Name = "Use Purify [Obsolete, Use RSR's Lists feature]")]
     public bool UsePurifyPvP { get; set; } = true;
@@ -120,7 +123,7 @@ internal class MchKirboPvpPublic : MachinistRotation
     {
         // Get available width in the current ImGui window
         float availableWidth = ImGui.GetContentRegionAvail().X;
-        using (var child = ImRaii.Child("Child1", new Vector2((availableWidth / 2), 200), true))
+        using (ImRaii.IEndObject child = ImRaii.Child("playerinfo", new Vector2((availableWidth / 2), 200), true))
         {
             if (child.Success)
             {
@@ -150,8 +153,7 @@ internal class MchKirboPvpPublic : MachinistRotation
                 ImGui.TextWrapped("BioblasterPvP Target: " + BioblasterPvP.Target.Target?.ToString());
                 ImGui.NewLine();
 
-                ImGui.TextWrapped($"Player Is Casting: {CurrentTarget.target}");
-                ImGui.TextColored(ImGuiColors.DalamudViolet,$"Player Is Casting: {Player.IsCasting}");
+                ImGui.TextColored(ImGuiColors.DalamudViolet, $"Player Is Casting: {Player.IsCasting}");
 
                 ImGui.TextWrapped($"Player Cast Action ID: {(Player.IsCasting ? Player.CastActionId.ToString() : "N/A")}");
                 ImGui.TextWrapped($"Player Cast Action ID: " + Player.CastActionId.ToString());
@@ -163,22 +165,20 @@ internal class MchKirboPvpPublic : MachinistRotation
             }
         }
         ImGui.SameLine();
-        using (var child2 = ImRaii.Child("Child2", new Vector2(((availableWidth / 2) - 20), 200), true))
+        using (ImRaii.IEndObject child2 = ImRaii.Child("targetinfo", new Vector2(((availableWidth / 2) - 20), 200), true))
         {
             if (child2.Success)
             {
                 if (CurrentTarget != null)
                 {
+                    ImGui.TextWrapped($"Current Target Name: {CurrentTarget.Name}");
                     ImGui.TextWrapped("Target HP ratio: " + CurrentTarget.GetHealthRatio());
                     ImGui.TextWrapped("Distance: " + CurrentTarget.DistanceToPlayer().ToString("F1") + "y");
                     ImGui.NewLine();
-                    ImGui.TextWrapped($"Current Target Name: {CurrentTarget.Name}");
 
                     ImGui.TextWrapped($"Current Target Is Casting: {CurrentTarget.IsCasting}");
 
                     ImGui.TextWrapped($"Current Target Cast Action ID: {(CurrentTarget.IsCasting ? CurrentTarget.CastActionId.ToString() : "N/A")}");
-
-                    //ImGui.TextWrapped($"Current Target Is MCH: {CurrentTarget.IsJobs(ECommons.ExcelServices.Job.MCH)}");
 
                     ImGui.TextWrapped($"Current Target Targeting Player: {CurrentTarget.TargetObject?.GameObjectId == Player.GameObjectId}");
                     ImGui.TextWrapped($"Current Target GameObjectId: {CurrentTarget.GameObjectId.ToString()}");
@@ -190,7 +190,6 @@ internal class MchKirboPvpPublic : MachinistRotation
                     ImGui.TextWrapped("Distance: " + "no target");
                 }
                 ImGui.NewLine();
-                //if ( != null) {
             }
         }
         foreach (IBattleChara enemy in CustomRotation.AllHostileTargets)
@@ -198,19 +197,11 @@ internal class MchKirboPvpPublic : MachinistRotation
             if (enemy == null) continue;
 
             string header = $"Name: {enemy.Name}, GameObjectId: {enemy.GameObjectId}";
-
             if (ImGui.CollapsingHeader(header))
             {
-                //ImGui.TextWrapped($"- Name: {enemy.Name}, ID: {enemy.GameObjectId}");
-
-                //ImGui.TextWrapped($"- Is MCH: {(enemy.IsJobs(ECommons.ExcelServices.Job.MCH) ? "Yes" : "No")}");
-
                 ImGui.TextWrapped($"- Is Casting: {(enemy.IsCasting ? "Yes" : "No")}");
-
                 ImGui.TextWrapped($"- Cast Action ID: {(enemy.IsCasting ? enemy.CastActionId.ToString() : "N/A")}");
-
                 ImGui.TextWrapped($"- Targeting Player: {(enemy.CastTargetObjectId == Player.GameObjectId ? "Yes" : "No")}");
-                //ImGui.TextWrapped($"- Targeting: {(enemy.TargetObject.Name.ToString())}");
             }
         }
     }
@@ -286,7 +277,10 @@ internal class MchKirboPvpPublic : MachinistRotation
     protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? action)
     {
         action = null;
-        if (GuardCancel && Player.HasStatus(true, StatusID.Guard)) return false;
+        if (GuardCancel && Player.HasStatus(true, StatusID.Guard))
+        {
+            return false;
+        }
 
         return base.DefenseSingleAbility(nextGCD, out action);
     }
@@ -337,8 +331,7 @@ internal class MchKirboPvpPublic : MachinistRotation
         }
         else
         {
-
-            var battleNPC = Dalamud.Game.ClientState.Objects.Enums.ObjectKind.BattleNpc;
+            Dalamud.Game.ClientState.Objects.Enums.ObjectKind battleNPC = Dalamud.Game.ClientState.Objects.Enums.ObjectKind.BattleNpc;
             if (MarksmansSpitePvP2.CanUse(out act) &&
                 CustomRotationEx.CurrentLimitBreakLevel == 1 &&
                 CurrentTarget != null &&
@@ -363,19 +356,20 @@ internal class MchKirboPvpPublic : MachinistRotation
             return true;
         }
 
+        // Air Anchor is used if Player is not overheated and available
+        if (!IsPvPOverheated && AirAnchorPvP.CanUse(out act/*, usedUp: true*/) && Player.HasStatus(true, StatusID.AirAnchorPrimed))
+        {
+            return true;
+        }
+
         // Drill old
         if (!IsPvPOverheated && HasHostilesInRange && DrillPvP.CanUse(out act, usedUp: true) && Player.HasStatus(true, StatusID.DrillPrimed))
         {
             return true;
         }
 
+        // FullMetalField
         if (!IsPvPOverheated && !Player.HasStatus(true, StatusID.Analysis) && FullMetalFieldPvP.CanUse(out act, skipAoeCheck: true))
-        {
-            return true;
-        }
-
-        // Air Anchor is used if Player is not overheated and available
-        if (!IsPvPOverheated && AirAnchorPvP.CanUse(out act/*, usedUp: true*/) && Player.HasStatus(true, StatusID.AirAnchorPrimed))
         {
             return true;
         }
@@ -390,7 +384,7 @@ internal class MchKirboPvpPublic : MachinistRotation
         // Note: Stop Using Blast Charge if Player's HP is low + moving + not overheated (since our movement slows down a lot we do this to be able retreat)
         if (BlastChargePvP.CanUse(out act, skipCastingCheck: true) /*&& CurrentTarget != null && CurrentTarget.DistanceToPlayer() < 20*/)
         {
-            if (Player.CurrentHp <= LowHPNoBlastChargeThreshold && HasHostilesInRange && LowHPNoBlastCharge && IsMoving) // Maybe add InCombat as well
+            if (Player.CurrentHp <= LowHPNoBlastChargeThreshold && NumberOfAllHostilesInRange > 0 && LowHPNoBlastCharge && IsMoving) // Maybe add InCombat as well
             {
                 return false;
             }
@@ -402,9 +396,9 @@ internal class MchKirboPvpPublic : MachinistRotation
 
         return base.GeneralGCD(out act);
     }
-
     #endregion GCD Logic
 
+    #region Extra Methods
     private bool EmergencyLowHP(out IAction? act)
     {
         if (Player.HasStatus(true, StatusID.Guard))
@@ -441,6 +435,7 @@ internal class MchKirboPvpPublic : MachinistRotation
         return false;
     }
 
+    // Tries to use Marksman Spite on a suitable target. (Tries to avoid using if target's HP is very low, but it's not perfect)
     private bool UseMCHLB(out IAction? action)
     {
         // Exit early if LB level is below 1
@@ -474,6 +469,7 @@ internal class MchKirboPvpPublic : MachinistRotation
         return false;
     }
 
+    // Original idea was to check if an enemy is using MS on player, silly goose me didn't realize that MCH pvp LB does, in fact, not have a cast. So need to rework this idea.
     private bool ShouldGuardAgainstLB(out IAction? action)
     {
         action = null;
@@ -502,4 +498,5 @@ internal class MchKirboPvpPublic : MachinistRotation
 
         return false;
     }
+    #endregion
 }
