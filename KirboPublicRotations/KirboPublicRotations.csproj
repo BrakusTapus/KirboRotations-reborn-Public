@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net9.0-windows</TargetFramework>
         <AssemblyName>RotatingKirboPublic</AssemblyName>
-        <AssemblyVersion>7.2.5.28</AssemblyVersion>
+        <AssemblyVersion>7.2.5.29</AssemblyVersion>
         <PlatformTarget>x64</PlatformTarget>
         <Platforms>x64</Platforms>
         <Nullable>enable</Nullable>
