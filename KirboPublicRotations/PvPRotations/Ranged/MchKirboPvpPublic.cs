@@ -7,7 +7,7 @@ using KirboPublicRotations.Helpers;
 namespace KirboPublicRotations.PvPRotations.Ranged;
 
 [BetaRotation]
-[Rotation("Kirbo - [Public]", CombatType.PvP, GameVersion = "7.256", Description = "Kirbo's public PvP Rotation for MCH. Uses LB!")]
+[Rotation("Kirbo - [Public]", CombatType.PvP, GameVersion = "7.257", Description = "Kirbo's public PvP Rotation for MCH. Uses LB!")]
 [Api(5)]
 internal sealed class MchKirboPvpPublic : MachinistRotation
 {
@@ -91,28 +91,28 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
     [RotationConfig(CombatType.PvP, Name = "Auto Bishop")]
     public bool AutoBishop { get; set; } = false;
 
-    [RotationConfig(CombatType.PvP, Name = "Use Purify [Obsolete, Use RSR's Lists feature]")]
-    public bool UsePurifyPvP { get; set; } = true;
+    //[RotationConfig(CombatType.PvP, Name = "Use Purify [Obsolete, Use RSR's Lists feature]")]
+    //public bool UsePurifyPvP { get; set; } = true;
 
-    [Obsolete("Use RSR's Lists feature")]
-    private bool DoPurify(out IAction? action)
-    {
-        action = null;
-        if (!UsePurifyPvP) return false;
+    //[Obsolete("Use RSR's Lists feature")]
+    //private bool DoPurify(out IAction? action)
+    //{
+    //    action = null;
+    //    if (!UsePurifyPvP) return false;
 
-        var purifiableStatusesIDs = new List<int>
-        {
-            // Stun, DeepFreeze, HalfAsleep, Sleep, Bind, Heavy, Silence
-            1343, 3219, 3022, 1348, 1345, 1344, 1347
-        };
+    //    var purifiableStatusesIDs = new List<int>
+    //    {
+    //        // Stun, DeepFreeze, HalfAsleep, Sleep, Bind, Heavy, Silence
+    //        1343, 3219, 3022, 1348, 1345, 1344, 1347
+    //    };
 
-        if (purifiableStatusesIDs.Any(id => Player.HasStatus(false, (StatusID)id)))
-        {
-            return PurifyPvP.CanUse(out action);
-        }
+    //    if (purifiableStatusesIDs.Any(id => Player.HasStatus(false, (StatusID)id)))
+    //    {
+    //        return PurifyPvP.CanUse(out action);
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
     [RotationConfig(CombatType.PvP, Name = "Enable experimental features.")]
     private bool ExperimentalFeature { get; set; } = true;
@@ -218,10 +218,10 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         if (GuardCancel && HasActiveGuard)
         {
             return false;
-        } 
+        }
 
         // Use RSR's Lists feature
-        if (DoPurify(out act)) return true;
+        //if (DoPurify(out act)) return true;
 
         if (EmergencyHealing && EmergencyLowHP(out act))
         {
@@ -235,12 +235,12 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
             return true;
         }
 
-        if (BraveryPvP.CanUse(out act) && NumberOfAllHostilesInRange > 0 && nextGCD.IsTheSameTo(false, ActionID.FullMetalFieldPvP, ActionID.DrillPvP, (ActionID)29415))
+        if (BraveryPvP.CanUse(out act) && NumberOfAllHostilesInRange > 0 && nextGCD.IsTheSameTo(false, ActionID.FullMetalFieldPvP, ActionID.DrillPvP, (ActionID)29415, ActionID.ChainSawPvP))
         {
             return true;
         }
 
-        if (/*nextGCD != null && */nextGCD.IsTheSameTo(false, FullMetalFieldPvP) /*&& !IsPvPOverheated*/ && WildfirePvP.CanUse(out act))
+        if (!IsPvPOverheated && /*nextGCD != null && */nextGCD.IsTheSameTo(false, FullMetalFieldPvP) /*&& !IsPvPOverheated*/ && WildfirePvP.CanUse(out act))
         {
             return true;
         }
@@ -330,7 +330,7 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         {
             if (ExperimentalLBFeature)
             {
-                if (UseMCHLB(out act)) // Should be best one to use
+                if (/*UseMCHLB*/UseMCHLBNEW(out act)) // Should be best one to use
                 {
                     return true;
                 }
@@ -383,13 +383,13 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         }
 
         // FullMetalField
-        if (!IsPvPOverheated && !Player.HasStatus(true, StatusID.Analysis) && FullMetalFieldPvP.CanUse(out act, skipAoeCheck: true))
+        if (!IsPvPOverheated /*&& !Player.HasStatus(true, StatusID.Analysis)*/ && FullMetalFieldPvP.CanUse(out act, skipAoeCheck: true))
         {
             return true;
         }
 
         // Scattergun is used if Player is not overheated and available
-        if (!IsPvPOverheated && ScattergunPvP.CanUse(out act, usedUp: true, skipAoeCheck: true) /*&& ScattergunPvP.Target.Target.DistanceToPlayer() <= 5*/)
+        if (!IsPvPOverheated && ScattergunPvP.CanUse(out act, usedUp: true, skipAoeCheck: true) && ScattergunPvP.Target.Target.DistanceToPlayer() <= 5)
         {
             return true;
         }
@@ -398,14 +398,15 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         // Note: Stop Using Blast Charge if Player's HP is low + moving + not overheated (since our movement slows down a lot we do this to be able retreat)
         if (BlastChargePvP.CanUse(out act, skipCastingCheck: true) /*&& CurrentTarget != null && CurrentTarget.DistanceToPlayer() < 20*/)
         {
-            if (Player.CurrentHp <= LowHPNoBlastChargeThreshold && NumberOfAllHostilesInRange > 0 && LowHPNoBlastCharge && IsMoving) // Maybe add InCombat as well
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            //if (Player.CurrentHp <= LowHPNoBlastChargeThreshold && NumberOfAllHostilesInRange > 0 && LowHPNoBlastCharge && IsMoving) // Maybe add InCombat as well
+            //{
+            //    return false;
+            //}
+            //else
+            //{
+            //    return true;
+            //}
+            return true;
         }
 
         return base.GeneralGCD(out act);
@@ -481,6 +482,46 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         }
         action = null;
         return false;
+    }
+
+    private bool UseMCHLBNEW(out IAction? action)
+    {
+
+        action = null;
+
+        if (CustomRotationEx.CurrentLimitBreakLevel == 0)
+        {
+            return false;
+        }
+
+        const int EstimatedLBDamage = 40000;
+        const int MinEffectiveHp = (int)(EstimatedLBDamage * 0.5); // ~20000
+
+        IBattleChara? target = CustomRotation.AllHostileTargets
+        .Where(obj =>
+            obj.CurrentHp >= MinEffectiveHp &&
+            obj.CurrentHp <= 40000 &&
+            obj.CurrentMp <= 2500 &&
+            (obj.IsJobCategory(JobRole.Healer) ||
+             obj.IsJobCategory(JobRole.RangedPhysical) ||
+             obj.IsJobCategory(JobRole.RangedMagical)) &&
+            obj.DistanceToPlayer() <= 30 &&
+            !obj.HasStatus(false, StatusID.Guard))
+        .OrderBy(obj => obj.CurrentHp)
+        .FirstOrDefault();
+
+        if (target == null)
+        {
+            return false;
+        }
+
+        if (!MarksmansSpitePvP.CanUse(out action))
+        {
+            return false;
+        }
+
+        MarksmansSpitePvP.Target = new TargetResult(target, [target], target.Position);
+        return true;
     }
 
     // Original idea was to check if an enemy is using MS on player, silly goose me didn't realize that MCH pvp LB does, in fact, not have a cast. So need to rework this idea.
