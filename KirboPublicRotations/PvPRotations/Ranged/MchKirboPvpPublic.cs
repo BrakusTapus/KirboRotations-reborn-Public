@@ -7,9 +7,9 @@ using KirboPublicRotations.Helpers;
 namespace KirboPublicRotations.PvPRotations.Ranged;
 
 [BetaRotation]
-[Rotation("Kirbo - [Public]", CombatType.PvP, GameVersion = "7.25", Description = "Kirbo's public PvP Rotation for MCH. Uses LB!")]
+[Rotation("Kirbo - [Public]", CombatType.PvP, GameVersion = "7.256", Description = "Kirbo's public PvP Rotation for MCH. Uses LB!")]
 [Api(5)]
-internal class MchKirboPvpPublic : MachinistRotation
+internal sealed class MchKirboPvpPublic : MachinistRotation
 {
     #region Properties
     private static bool HasActiveGuard => Player.HasStatus(true, StatusID.Guard);
@@ -88,8 +88,8 @@ internal class MchKirboPvpPublic : MachinistRotation
     [RotationConfig(CombatType.PvP, Name = "AnalysisOnChainsaw")]
     public bool AnalysisOnChainsaw { get; set; } = true;
 
-    //[RotationConfig(CombatType.PvP, Name = "ManualBishop")]
-    //public bool ManualBishop { get; set; } = false;
+    [RotationConfig(CombatType.PvP, Name = "Auto Bishop")]
+    public bool AutoBishop { get; set; } = false;
 
     [RotationConfig(CombatType.PvP, Name = "Use Purify [Obsolete, Use RSR's Lists feature]")]
     public bool UsePurifyPvP { get; set; } = true;
@@ -218,7 +218,7 @@ internal class MchKirboPvpPublic : MachinistRotation
         if (GuardCancel && HasActiveGuard)
         {
             return false;
-        }
+        } 
 
         // Use RSR's Lists feature
         if (DoPurify(out act)) return true;
@@ -228,19 +228,19 @@ internal class MchKirboPvpPublic : MachinistRotation
             return true;
         }
 
+        // Bishop Turret should be used off cooldown
+        // Note: Could prolly be improved using 'ChoiceTarget' in the IBaseAction
+        if (AutoBishop /*&& BishopAutoturretPvP.Target.AffectedTargets.Length >= 1*/ && BishopAutoturretPvP.CanUse(out act, skipAoeCheck: true, usedUp: true)) // Without MustUse, returns CastType 7 invalid // BishopAutoturretPvP.action.CastType
+        {
+            return true;
+        }
+
         if (BraveryPvP.CanUse(out act) && NumberOfAllHostilesInRange > 0 && nextGCD.IsTheSameTo(false, ActionID.FullMetalFieldPvP, ActionID.DrillPvP, (ActionID)29415))
         {
             return true;
         }
 
-        // Bishop Turret should be used off cooldown
-        // Note: Could prolly be improved using 'ChoiceTarget' in the IBaseAction
-        if (BishopAutoturretPvP.Target.AffectedTargets.Length >= 1 && BishopAutoturretPvP.CanUse(out act, skipAoeCheck: true, usedUp: true)) // Without MustUse, returns CastType 7 invalid // BishopAutoturretPvP.action.CastType
-        {
-            return true;
-        }
-
-        if (nextGCD != null && nextGCD.IsTheSameTo(true, FullMetalFieldPvP) /*&& !IsPvPOverheated*/ && WildfirePvP.CanUse(out act))
+        if (/*nextGCD != null && */nextGCD.IsTheSameTo(false, FullMetalFieldPvP) /*&& !IsPvPOverheated*/ && WildfirePvP.CanUse(out act))
         {
             return true;
         }
