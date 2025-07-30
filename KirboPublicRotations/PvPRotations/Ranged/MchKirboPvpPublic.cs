@@ -12,6 +12,8 @@ namespace KirboPublicRotations.PvPRotations.Ranged;
 internal class MchKirboPvpPublic : MachinistRotation
 {
     #region Properties
+    private static bool HasActiveGuard => Player.HasStatus(true, StatusID.Guard);
+
     /// <summary>
     ///     Gets the current Heat Stacks.
     /// </summary>
@@ -212,7 +214,7 @@ internal class MchKirboPvpPublic : MachinistRotation
     {
         act = null;
         // Should prevent any actions if the option 'guardCancel' is enabled and Player has the Guard buff up
-        if (GuardCancel && Player.HasStatus(true, StatusID.Guard))
+        if (GuardCancel && HasActiveGuard)
         {
             return false;
         }
@@ -237,9 +239,9 @@ internal class MchKirboPvpPublic : MachinistRotation
             return true;
         }
 
-        if (nextGCD.IsTheSameTo(true, FullMetalFieldPvP) && !IsPvPOverheated && WildfirePvP.CanUse(out act))
-        {  
-            return true; 
+        if (nextGCD != null && nextGCD.IsTheSameTo(true, FullMetalFieldPvP) /*&& !IsPvPOverheated*/ && WildfirePvP.CanUse(out act))
+        {
+            return true;
         }
 
         // WildfirePvP Should be used only right after getting the 5th Heat Stacks
@@ -282,7 +284,7 @@ internal class MchKirboPvpPublic : MachinistRotation
     protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? action)
     {
         action = null;
-        if (GuardCancel && Player.HasStatus(true, StatusID.Guard))
+        if (GuardCancel && HasActiveGuard)
         {
             return false;
         }
@@ -296,7 +298,7 @@ internal class MchKirboPvpPublic : MachinistRotation
     {
         act = null;
         // Should prevent any actions if the option 'guardCancel' is enabled and Player has the Guard buff up
-        if (GuardCancel && Player.HasStatus(true, StatusID.Guard))
+        if (GuardCancel && HasActiveGuard)
         {
             return false;
         }
