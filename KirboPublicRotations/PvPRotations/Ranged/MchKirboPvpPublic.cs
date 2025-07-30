@@ -39,6 +39,7 @@ internal class MchKirboPvpPublic : MachinistRotation
     private static float PvPTargetWildfireStatusTime => CurrentTarget.StatusTime(true, StatusID.Wildfire_1323);
 #pragma warning restore CS8604 // Possible null reference argument.
     private static float AnalysisStatusTime => Player.StatusTime(true, StatusID.Analysis);
+    private static bool PlayerHasBravery => Player.HasStatus(true, StatusID.Bravery);
     #endregion
 
     #region MCH LB
@@ -227,14 +228,14 @@ internal class MchKirboPvpPublic : MachinistRotation
             return true;
         }
 
-        if (BraveryPvP.CanUse(out act) && NumberOfAllHostilesInRange > 0 && nextGCD != null)
+        if (BraveryPvP.CanUse(out act) && NumberOfAllHostilesInRange > 0 && nextGCD.IsTheSameTo(false, ActionID.FullMetalFieldPvP, ActionID.DrillPvP, (ActionID)29415))
         {
             return true;
         }
 
         // Bishop Turret should be used off cooldown
         // Note: Could prolly be improved using 'ChoiceTarget' in the IBaseAction
-        if (BishopAutoturretPvP.Target.AffectedTargets.Length >= 2 && BishopAutoturretPvP.CanUse(out act, skipAoeCheck: true)) // Without MustUse, returns CastType 7 invalid // BishopAutoturretPvP.action.CastType
+        if (BishopAutoturretPvP.Target.AffectedTargets.Length >= 1 && BishopAutoturretPvP.CanUse(out act, skipAoeCheck: true, usedUp: true)) // Without MustUse, returns CastType 7 invalid // BishopAutoturretPvP.action.CastType
         {
             return true;
         }
@@ -260,19 +261,19 @@ internal class MchKirboPvpPublic : MachinistRotation
         // Analysis should be used on any of the tools depending on which options are enabled
         if (AnalysisPvP.CanUse(out act, usedUp: true) && NumberOfAllHostilesInRange > 0 && /*!IsPvPOverheated &&*/ !Player.HasStatus(true, StatusID.Analysis) && !IsLastAction(ActionID.AnalysisPvP))
         {
-            if (AnalysisOnDrill && nextGCD.IsTheSameTo(true, DrillPvP) && Player.HasStatus(true, StatusID.DrillPrimed))
+            if (AnalysisOnDrill && nextGCD.IsTheSameTo(false, ActionID.DrillPvP) && Player.HasStatus(true, StatusID.DrillPrimed))
             {
                 return true;
             }
-            if (AnalysisOnChainsaw && nextGCD.IsTheSameTo(true, ChainSawPvP) && Player.HasStatus(true, StatusID.ChainSawPrimed))
+            if (AnalysisOnChainsaw && nextGCD.IsTheSameTo(false, ActionID.ChainSawPvP) && Player.HasStatus(true, StatusID.ChainSawPrimed))
             {
                 return true;
             }
-            if (AnalysisOnBioBlaster && nextGCD.IsTheSameTo(true, BioblasterPvP) && Player.HasStatus(true, StatusID.BioblasterPrimed))
+            if (AnalysisOnBioBlaster && nextGCD.IsTheSameTo(false, ActionID.BioblasterPvP) && Player.HasStatus(true, StatusID.BioblasterPrimed))
             {
                 return true;
             }
-            if (AnalysisOnAirAnchor && nextGCD.IsTheSameTo(true, AirAnchorPvP) && Player.HasStatus(true, StatusID.AirAnchorPrimed))
+            if (AnalysisOnAirAnchor && nextGCD.IsTheSameTo(false, ActionID.AirAnchorPvP) && Player.HasStatus(true, StatusID.AirAnchorPrimed))
             {
                 return true;
             }
