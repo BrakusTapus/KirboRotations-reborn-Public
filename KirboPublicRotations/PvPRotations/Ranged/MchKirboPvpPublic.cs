@@ -7,7 +7,7 @@ using KirboPublicRotations.Helpers;
 namespace KirboPublicRotations.PvPRotations.Ranged;
 
 [BetaRotation]
-[Rotation("MCH Kirbo PvP\n  [Public]", CombatType.PvP, GameVersion = "7.25", Description = "Kirbo's public PvP Rotation for MCH\nUses LB\nUses Turret")]
+[Rotation("Kirbo - [Public]", CombatType.PvP, GameVersion = "7.25", Description = "Kirbo's public PvP Rotation for MCH. Uses LB!")]
 [Api(5)]
 internal class MchKirboPvpPublic : MachinistRotation
 {
@@ -237,6 +237,11 @@ internal class MchKirboPvpPublic : MachinistRotation
             return true;
         }
 
+        if (nextGCD.IsTheSameTo(true, FullMetalFieldPvP) && !IsPvPOverheated && WildfirePvP.CanUse(out act))
+        {  
+            return true; 
+        }
+
         // WildfirePvP Should be used only right after getting the 5th Heat Stacks
         if ((IsLastGCD((ActionID)41469) || IsPvPOverheated) &&
             !Player.WillStatusEnd(2f, true, StatusID.Overheated_3149) &&
@@ -303,6 +308,12 @@ internal class MchKirboPvpPublic : MachinistRotation
 
         // Uses BioBlaster automatically when a Target is in range
         if (!IsPvPOverheated && BioblasterPvP.CanUse(out act, usedUp: true, skipAoeCheck: true) && CurrentTarget != null && Player.HasStatus(true, StatusID.BioblasterPrimed) && CurrentTarget.DistanceToPlayer() <= 12)
+        {
+            return true;
+        }
+
+        // FullMetalField
+        if (FullMetalFieldPvP.CanUse(out act, skipAoeCheck: true))
         {
             return true;
         }
