@@ -510,7 +510,7 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
             (obj.IsJobCategory(JobRole.Healer) ||
              obj.IsJobCategory(JobRole.RangedPhysical) ||
              obj.IsJobCategory(JobRole.RangedMagical)) &&
-            obj.DistanceToPlayer() <= 30 &&
+            obj.DistanceToPlayer() <= 50 &&
             !obj.HasStatus(false, StatusID.Guard))
         .OrderBy(obj => obj.CurrentHp)
         .FirstOrDefault();
