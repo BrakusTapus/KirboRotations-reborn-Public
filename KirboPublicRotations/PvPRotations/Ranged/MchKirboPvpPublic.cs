@@ -70,11 +70,11 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
     [RotationConfig(CombatType.PvP, Name = "Emergency Healing")]
     public bool EmergencyHealing { get; set; } = false;
 
-    [RotationConfig(CombatType.PvP, Name = "LowHPNoBlastCharge")]
-    public bool LowHPNoBlastCharge { get; set; } = true;
+    //[RotationConfig(CombatType.PvP, Name = "LowHPNoBlastCharge")]
+    //public bool LowHPNoBlastCharge { get; set; } = true;
 
-    [RotationConfig(CombatType.PvP, Name = "LowHPNoBlastChargeThreshold")]
-    public int LowHPNoBlastChargeThreshold { get; set; } = 15000;
+    //[RotationConfig(CombatType.PvP, Name = "LowHPNoBlastChargeThreshold")]
+    //public int LowHPNoBlastChargeThreshold { get; set; } = 15000;
 
     [RotationConfig(CombatType.PvP, Name = "AnalysisOnDrill")]
     public bool AnalysisOnDrill { get; set; } = true;
@@ -256,8 +256,6 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
             return true;
         }
 
-
-
         // Analysis should be used on any of the tools depending on which options are enabled
         if (AnalysisPvP.CanUse(out act, usedUp: true) && NumberOfAllHostilesInRange > 0 && /*!IsPvPOverheated &&*/ !Player.HasStatus(true, StatusID.Analysis) && !IsLastAction(ActionID.AnalysisPvP))
         {
@@ -277,6 +275,12 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
             {
                 return true;
             }
+        }
+
+        // UseEagleEyeShot
+        if (UseEagleEyeShot(out act))
+        {
+            return true;
         }
 
         return base.EmergencyAbility(nextGCD, out act);
@@ -493,15 +497,16 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         {
             return false;
         }
-
-        const int EstimatedLBDamage = 40000;
+        // https://na.finalfantasyxiv.com/lodestone/playguide/contentsguide/frontline/4/
+        const int EstimatedLBDamage = 28000;
         const int MinEffectiveHp = (int)(EstimatedLBDamage * 0.5); // ~20000
 
         IBattleChara? target = CustomRotation.AllHostileTargets
         .Where(obj =>
             obj.CurrentHp >= MinEffectiveHp &&
-            obj.CurrentHp <= 40000 &&
-            obj.CurrentMp <= 2500 &&
+            obj.CurrentHp <= 35000 &&
+            !obj.IsJobCategory(JobRole.Tank) &&
+            !obj.IsJobCategory(JobRole.Melee) &&
             (obj.IsJobCategory(JobRole.Healer) ||
              obj.IsJobCategory(JobRole.RangedPhysical) ||
              obj.IsJobCategory(JobRole.RangedMagical)) &&
@@ -521,6 +526,41 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         }
 
         MarksmansSpitePvP.Target = new TargetResult(target, [target], target.Position);
+        return true;
+    }
+
+    private bool UseEagleEyeShot(out IAction? action)
+    {
+
+        action = null;
+
+        // https://na.finalfantasyxiv.com/lodestone/playguide/contentsguide/frontline/4/
+        const int EstimatedDamage = 12000;
+        const int MinEffectiveHp = (int)(EstimatedDamage * 0.5); // ~20000
+
+        IBattleChara? target = CustomRotation.AllHostileTargets
+        .Where(obj =>
+            obj.CurrentHp >= MinEffectiveHp &&
+            !obj.IsJobCategory(JobRole.Tank) &&
+            !obj.IsJobCategory(JobRole.Melee) &&
+            (obj.IsJobCategory(JobRole.Healer) ||
+             obj.IsJobCategory(JobRole.RangedPhysical) ||
+             obj.IsJobCategory(JobRole.RangedMagical)) &&
+            obj.DistanceToPlayer() <= 40)
+        .OrderBy(obj => obj.CurrentHp)
+        .FirstOrDefault();
+
+        if (target == null)
+        {
+            return false;
+        }
+
+        if (!EagleEyeShotPvP.CanUse(out action))
+        {
+            return false;
+        }
+
+        EagleEyeShotPvP.Target = new TargetResult(target, [target], target.Position);
         return true;
     }
 
@@ -554,4 +594,7 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         return false;
     }
     #endregion
+
+
+
 }
