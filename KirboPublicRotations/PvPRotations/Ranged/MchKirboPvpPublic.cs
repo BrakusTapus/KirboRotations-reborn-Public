@@ -189,8 +189,7 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
                 }
                 else
                 {
-                    ImGui.TextWrapped("Target HP ratio: 0");
-                    ImGui.TextWrapped("Distance: " + "no target");
+                    ImGui.TextColored(ImGuiColors.DalamudRed, "We don't have a target!");
                 }
                 ImGui.NewLine();
             }
@@ -240,22 +239,6 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
             return true;
         }
 
-        if (!IsPvPOverheated && /*nextGCD != null && */nextGCD.IsTheSameTo(false, FullMetalFieldPvP) /*&& !IsPvPOverheated*/ && WildfirePvP.CanUse(out act))
-        {
-            return true;
-        }
-
-        // WildfirePvP Should be used only right after getting the 5th Heat Stacks
-        if ((IsLastGCD((ActionID)41469) || IsPvPOverheated) &&
-            !Player.WillStatusEnd(2f, true, StatusID.Overheated_3149) &&
-            CurrentTarget != null &&
-            CurrentTarget.GetHealthRatio() >= 0.5 &&
-            !CustomRotationEx.IsPvPNpc(CurrentTarget.Name.ToString())
-            && WildfirePvP.CanUse(out act))
-        {
-            return true;
-        }
-
         // Analysis should be used on any of the tools depending on which options are enabled
         if (AnalysisPvP.CanUse(out act, usedUp: true) && NumberOfAllHostilesInRange > 0 && /*!IsPvPOverheated &&*/ !Player.HasStatus(true, StatusID.Analysis) && !IsLastAction(ActionID.AnalysisPvP))
         {
@@ -275,6 +258,22 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
             {
                 return true;
             }
+        }
+
+        if (!IsPvPOverheated && /*nextGCD != null && */nextGCD.IsTheSameTo(false, FullMetalFieldPvP) /*&& !IsPvPOverheated*/ && WildfirePvP.CanUse(out act))
+        {
+            return true;
+        }
+
+        // WildfirePvP Should be used only right after getting the 5th Heat Stacks
+        if ((IsLastGCD((ActionID)41469) || IsPvPOverheated) &&
+            !Player.WillStatusEnd(2f, true, StatusID.Overheated_3149) &&
+            CurrentTarget != null &&
+            CurrentTarget.GetHealthRatio() >= 0.5 &&
+            !CustomRotationEx.IsPvPNpc(CurrentTarget.Name.ToString())
+            && WildfirePvP.CanUse(out act))
+        {
+            return true;
         }
 
         // UseEagleEyeShot
@@ -319,8 +318,13 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
             return true;
         }
 
+        if (!IsPvPOverheated && DrillPvP.CanUse(out act, usedUp: true) && Player.HasStatus(true, StatusID.DrillPrimed))
+        {
+            return true;
+        }
+
         // FullMetalField
-        if (FullMetalFieldPvP.CanUse(out act, skipAoeCheck: true))
+        if (IsPvPOverheated && FullMetalFieldPvP.CanUse(out act, skipAoeCheck: true))
         {
             return true;
         }
@@ -334,7 +338,7 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         {
             if (ExperimentalLBFeature)
             {
-                if (/*UseMCHLB*/UseMCHLBNEW(out act)) // Should be best one to use
+                if (UseMCHLBNEW/*UseMCHLB4*/(out act)) // Should be best one to use
                 {
                     return true;
                 }
@@ -393,7 +397,7 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         }
 
         // Scattergun is used if Player is not overheated and available
-        if (!IsPvPOverheated && ScattergunPvP.CanUse(out act, usedUp: true, skipAoeCheck: true) && ScattergunPvP.Target.Target.DistanceToPlayer() <= 5)
+        if (!IsPvPOverheated && ScattergunPvP.CanUse(out act, usedUp: true, skipAoeCheck: true) /*&& ScattergunPvP.Target.Target.DistanceToPlayer() <= 5*/)
         {
             return true;
         }
@@ -526,6 +530,58 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         }
 
         MarksmansSpitePvP.Target = new TargetResult(target, [target], target.Position);
+        return true;
+    }
+
+    // class-level: only include roles you actually want to consider for LB
+    private static readonly Dictionary<JobRole, (int minHp, int maxHp)> LbTargetThresholds = new()
+    {
+        { JobRole.Healer, (17000, 28000) },
+        { JobRole.RangedMagical, (17000, 27000) },
+        { JobRole.RangedPhysical, (17000, 30000) },
+    };
+
+    private static bool IsGuarded() => Player.HasStatus(true, StatusID.Guard);
+    private static bool TargetHasGuard(IBattleChara target) => target.HasStatus(false, StatusID.Guard);
+
+    private bool UseMCHLB4(out IAction? action)
+    {
+        action = null;
+
+        if (CustomRotationEx.CurrentLimitBreakLevel == 0)
+            return false;
+
+        if (IsGuarded())
+            return false;
+
+        if (!MarksmansSpitePvP.CanUse(out action))
+            return false;
+
+        // Filter only allowed job roles (Healer / RangedMagical / RangedPhysical) via threshold map
+        var candidates = CustomRotation.AllHostileTargets
+        .Where(obj => obj.IsTargetable)
+        .Where(obj => obj.DistanceToPlayer() <= 50)
+        .Where(obj => !TargetHasGuard(obj))
+        .Where(obj =>
+        {
+            foreach (var kv in LbTargetThresholds)
+            {
+                if (obj.IsJobCategory(kv.Key))
+                {
+                    var (minHp, maxHp) = kv.Value;
+                    return obj.CurrentHp >= minHp && obj.CurrentHp <= maxHp;
+                }
+            }
+            return false; // exclude any job role not in the dictionary (e.g., Melee/Tank)
+        })
+        .OrderBy(obj => obj.CurrentHp)
+        .ToList();
+
+        if (candidates.Count == 0)
+            return false;
+
+        IBattleChara best = candidates.First();
+        MarksmansSpitePvP.Target = new TargetResult(best, new[] { best }, best.Position);
         return true;
     }
 
