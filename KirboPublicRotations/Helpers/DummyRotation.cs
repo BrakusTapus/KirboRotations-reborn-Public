@@ -7,7 +7,7 @@
 //namespace KirboPublicRotations.Helpers;
 
 //[Rotation("Dummy", CombatType.None, GameVersion = "9.99")]
-//[Api(5)]
+//[Api(6)]
 //public sealed class DummyRotation : MachinistRotation
 //{
 

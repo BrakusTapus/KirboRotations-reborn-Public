@@ -4,7 +4,7 @@ using Action = Lumina.Excel.Sheets.Action;
 
 namespace KirboPublicRotations.Helpers;
 
-[Api(5)]
+[Api(6)]
 internal unsafe class CustomRotationEx : MachinistRotation
 {
     #region Limit break

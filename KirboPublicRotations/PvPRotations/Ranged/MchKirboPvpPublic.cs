@@ -8,7 +8,7 @@ namespace KirboPublicRotations.PvPRotations.Ranged;
 
 [BetaRotation]
 [Rotation("Kirbo - [Public]", CombatType.PvP, GameVersion = "7.257", Description = "Kirbo's public PvP Rotation for MCH. Uses LB!")]
-[Api(5)]
+[Api(6)]
 internal sealed class MchKirboPvpPublic : MachinistRotation
 {
     #region Properties
