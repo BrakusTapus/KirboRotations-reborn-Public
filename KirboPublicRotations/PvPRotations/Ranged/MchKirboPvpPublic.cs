@@ -1,3 +1,4 @@
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Style;
 using Dalamud.Interface.Utility.Raii;
@@ -7,7 +8,7 @@ using KirboPublicRotations.Helpers;
 namespace KirboPublicRotations.PvPRotations.Ranged;
 
 [BetaRotation]
-[Rotation("Kirbo - [Public]", CombatType.PvP, GameVersion = "7.257", Description = "Kirbo's public PvP Rotation for MCH. Uses LB!")]
+[Rotation("Kirbo - MCH [Public]", CombatType.PvP, GameVersion = "7.3", Description = "Kirbo's public PvP Rotation for MCH. Uses LB!")]
 [Api(6)]
 internal sealed class MchKirboPvpPublic : MachinistRotation
 {
@@ -122,91 +123,95 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
     #endregion Rotation Config
 
     #region Status Display
-    public override void DisplayStatus()
-    {
-        // Get available width in the current ImGui window
-        float availableWidth = ImGui.GetContentRegionAvail().X;
-        using (ImRaii.IEndObject child = ImRaii.Child("playerinfo", new Vector2((availableWidth / 2), 200), true))
-        {
-            if (child.Success)
-            {
-                ImGui.TextWrapped("Player HPP: " + Player.GetHealthRatio());
-                ImGui.TextWrapped("LimitBreakLevel: " + CustomRotationEx.CurrentLimitBreakLevel);
-                ImGuiToolTipsKirbo.HoveredTooltip("CurrentUnits: " + CustomRotationEx.CurrentCurrentUnits);
-                ImGui.NewLine();
+    //public override void DisplayStatus()
+    //{
+    //    //if (ImGui.Button("Send test Log"))
+    //    //{
+    //    //    CustomRotationEx.Debug("Test Test");
+    //    //}
+    //    // Get available width in the current ImGui window
+    //    float availableWidth = ImGui.GetContentRegionAvail().X;
+    //    using (ImRaii.IEndObject child = ImRaii.Child("playerinfo", new Vector2((availableWidth / 2), 200), true))
+    //    {
+    //        if (child.Success)
+    //        {
+    //            ImGui.TextWrapped("Player HPP: " + Player.GetHealthRatio());
+    //            ImGui.TextWrapped("LimitBreakLevel: " + CustomRotationEx.CurrentLimitBreakLevel);
+    //            ImGuiToolTipsKirbo.HoveredTooltip("CurrentUnits: " + CustomRotationEx.CurrentCurrentUnits);
+    //            ImGui.NewLine();
 
-                ImGui.TextWrapped("HeatStacks: " + PvP_OverheatedStacks);
-                ImGui.TextWrapped("Status Time Analysis: " + AnalysisStatusTime.ToString("F2") + "s");
-                ImGui.NewLine();
+    //            ImGui.TextWrapped("HeatStacks: " + PvP_OverheatedStacks);
+    //            ImGui.TextWrapped("Status Time Analysis: " + AnalysisStatusTime.ToString("F2") + "s");
+    //            ImGui.NewLine();
 
-                ImGui.TextWrapped("IsPvPOverheated (Player): " + IsPvPOverheated);
-                ImGui.TextWrapped("Overheated StatusTime: " + OverheatedStatusTime.ToString("F2") + "s");
-                ImGui.NewLine();
+    //            ImGui.TextWrapped("IsPvPOverheated (Player): " + IsPvPOverheated);
+    //            ImGui.TextWrapped("Overheated StatusTime: " + OverheatedStatusTime.ToString("F2") + "s");
+    //            ImGui.NewLine();
 
-                ImGui.TextWrapped("PlayerHasWildfire: " + PlayerHasWildfire);
-                ImGui.TextWrapped("PlayerWildfireStatusTime: " + PlayerWildfireStatusTime.ToString("F2") + "s");
-                ImGui.NewLine();
+    //            ImGui.TextWrapped("PlayerHasWildfire: " + PlayerHasWildfire);
+    //            ImGui.TextWrapped("PlayerWildfireStatusTime: " + PlayerWildfireStatusTime.ToString("F2") + "s");
+    //            ImGui.NewLine();
 
-                ImGui.TextWrapped("PvPTargetHasWildfire: " + PvPTargetHasWildfire);
-                ImGui.TextWrapped("PvPTargetWildfireStatusTime: " + PvPTargetWildfireStatusTime.ToString("F2") + "s");
-                ImGui.NewLine();
+    //            ImGui.TextWrapped("PvPTargetHasWildfire: " + PvPTargetHasWildfire);
+    //            ImGui.TextWrapped("PvPTargetWildfireStatusTime: " + PvPTargetWildfireStatusTime.ToString("F2") + "s");
+    //            ImGui.NewLine();
 
-                ImGui.TextWrapped("BlastChargePvP Target: " + BlastChargePvP.Target.Target?.ToString());
-                ImGui.TextWrapped("BishopAutoturretPvP Target: " + BishopAutoturretPvP.Target.Target?.ToString());
-                ImGui.TextWrapped("BioblasterPvP Target: " + BioblasterPvP.Target.Target?.ToString());
-                ImGui.NewLine();
+    //            ImGui.TextWrapped("BlastChargePvP Target: " + BlastChargePvP.Target.Target?.ToString());
+    //            ImGui.TextWrapped("BishopAutoturretPvP Target: " + BishopAutoturretPvP.Target.Target?.ToString());
+    //            ImGui.TextWrapped("BioblasterPvP Target: " + BioblasterPvP.Target.Target?.ToString());
+    //            ImGui.NewLine();
 
-                ImGui.TextColored(ImGuiColors.DalamudViolet, $"Player Is Casting: {Player.IsCasting}");
+    //            ImGui.TextColored(ImGuiColors.DalamudViolet, $"Player Is Casting: {Player.IsCasting}");
 
-                ImGui.TextWrapped($"Player Cast Action ID: {(Player.IsCasting ? Player.CastActionId.ToString() : "N/A")}");
-                ImGui.TextWrapped($"Player Cast Action ID: " + Player.CastActionId.ToString());
+    //            ImGui.TextWrapped($"Player Cast Action ID: {(Player.IsCasting ? Player.CastActionId.ToString() : "N/A")}");
+    //            ImGui.TextWrapped($"Player Cast Action ID: " + Player.CastActionId.ToString());
 
-                ImGui.TextWrapped($"Player Targeting Player: {Player.TargetObject?.GameObjectId == Player.GameObjectId}");
-                ImGui.TextWrapped($"TargetObject GameObjectId: {Player.TargetObject?.GameObjectId.ToString()}");
-                ImGui.TextWrapped($"Player GameObjectId: {Player.GameObjectId.ToString()}");
-                ImGui.NewLine();
-            }
-        }
-        ImGui.SameLine();
-        using (ImRaii.IEndObject child2 = ImRaii.Child("targetinfo", new Vector2(((availableWidth / 2) - 20), 200), true))
-        {
-            if (child2.Success)
-            {
-                if (CurrentTarget != null)
-                {
-                    ImGui.TextWrapped($"Current Target Name: {CurrentTarget.Name}");
-                    ImGui.TextWrapped("Target HP ratio: " + CurrentTarget.GetHealthRatio());
-                    ImGui.TextWrapped("Distance: " + CurrentTarget.DistanceToPlayer().ToString("F1") + "y");
-                    ImGui.NewLine();
+    //            ImGui.TextWrapped($"Player Targeting Player: {Player.TargetObject?.GameObjectId == Player.GameObjectId}");
+    //            ImGui.TextWrapped($"TargetObject GameObjectId: {Player.TargetObject?.GameObjectId.ToString()}");
+    //            ImGui.TextWrapped($"Player GameObjectId: {Player.GameObjectId.ToString()}");
+    //            ImGui.NewLine();
+    //        }
+    //    }
+    //    ImGui.SameLine();
+    //    using (ImRaii.IEndObject child2 = ImRaii.Child("targetinfo", new Vector2(((availableWidth / 2) - 20), 200), true))
+    //    {
+    //        if (child2.Success)
+    //        {
+    //            if (CurrentTarget != null)
+    //            {
+    //                ImGui.TextWrapped($"Current Target Name: {CurrentTarget.Name}");
+    //                ImGui.TextWrapped("Target HP ratio: " + CurrentTarget.GetHealthRatio());
+    //                ImGui.TextWrapped("Distance: " + CurrentTarget.DistanceToPlayer().ToString("F1") + "y");
+    //                ImGui.NewLine();
 
-                    ImGui.TextWrapped($"Current Target Is Casting: {CurrentTarget.IsCasting}");
+    //                ImGui.TextWrapped($"Current Target Is Casting: {CurrentTarget.IsCasting}");
 
-                    ImGui.TextWrapped($"Current Target Cast Action ID: {(CurrentTarget.IsCasting ? CurrentTarget.CastActionId.ToString() : "N/A")}");
+    //                ImGui.TextWrapped($"Current Target Cast Action ID: {(CurrentTarget.IsCasting ? CurrentTarget.CastActionId.ToString() : "N/A")}");
 
-                    ImGui.TextWrapped($"Current Target Targeting Player: {CurrentTarget.TargetObject?.GameObjectId == Player.GameObjectId}");
-                    ImGui.TextWrapped($"Current Target GameObjectId: {CurrentTarget.GameObjectId.ToString()}");
-                    ImGui.TextWrapped($"TargetObject's GameObjectId: {CurrentTarget.TargetObject?.GameObjectId.ToString()}");
-                }
-                else
-                {
-                    ImGui.TextColored(ImGuiColors.DalamudRed, "We don't have a target!");
-                }
-                ImGui.NewLine();
-            }
-        }
-        foreach (IBattleChara enemy in CustomRotation.AllHostileTargets)
-        {
-            if (enemy == null) continue;
+    //                ImGui.TextWrapped($"Current Target Targeting Player: {CurrentTarget.TargetObject?.GameObjectId == Player.GameObjectId}");
+    //                ImGui.TextWrapped($"Current Target GameObjectId: {CurrentTarget.GameObjectId.ToString()}");
+    //                ImGui.TextWrapped($"TargetObject's GameObjectId: {CurrentTarget.TargetObject?.GameObjectId.ToString()}");
+    //            }
+    //            else
+    //            {
+    //                ImGui.TextColored(ImGuiColors.DalamudRed, "We don't have a target!");
+    //            }
+    //            ImGui.NewLine();
+    //        }
+    //    }
+    //    foreach (IBattleChara enemy in CustomRotation.AllHostileTargets)
+    //    {
+    //        if (enemy == null) continue;
 
-            string header = $"Name: {enemy.Name}, GameObjectId: {enemy.GameObjectId}";
-            if (ImGui.CollapsingHeader(header))
-            {
-                ImGui.TextWrapped($"- Is Casting: {(enemy.IsCasting ? "Yes" : "No")}");
-                ImGui.TextWrapped($"- Cast Action ID: {(enemy.IsCasting ? enemy.CastActionId.ToString() : "N/A")}");
-                ImGui.TextWrapped($"- Targeting Player: {(enemy.CastTargetObjectId == Player.GameObjectId ? "Yes" : "No")}");
-            }
-        }
-    }
+    //        string header = $"Name: {enemy.Name}, GameObjectId: {enemy.GameObjectId}";
+    //        if (ImGui.CollapsingHeader(header))
+    //        {
+    //            ImGui.TextWrapped($"- Is Casting: {(enemy.IsCasting ? "Yes" : "No")}");
+    //            ImGui.TextWrapped($"- Cast Action ID: {(enemy.IsCasting ? enemy.CastActionId.ToString() : "N/A")}");
+    //            ImGui.TextWrapped($"- Targeting Player: {(enemy.CastTargetObjectId == Player.GameObjectId ? "Yes" : "No")}");
+    //        }
+    //    }
+    //}
     #endregion
 
     #region oGCD Logic
