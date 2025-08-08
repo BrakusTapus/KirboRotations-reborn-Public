@@ -125,10 +125,6 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
     #region Status Display
     public override void DisplayStatus()
     {
-        if (ImGui.Button("Send test Log"))
-        {
-            CustomRotationEx.Debug("Test Test");
-        }
         //Get available width in the current ImGui window
         float availableWidth = ImGui.GetContentRegionAvail().X;
         using (ImRaii.IEndObject child = ImRaii.Child("playerinfo", new Vector2((availableWidth / 2), 200), true))
@@ -343,43 +339,43 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
             }
         }
 
-        if (ExperimentalFeature)
-        {
-            if (ExperimentalLBFeature)
-            {
-                if (UseMCHLBNEW/*UseMCHLB4*/(out act)) // Should be best one to use
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                if (MarksmansSpitePvP2.CanUse(out act) && CustomRotationEx.CurrentLimitBreakLevel == 1)
-                {
-                    return true;
-                }
-            }
-        }
-        else
-        {
-            Dalamud.Game.ClientState.Objects.Enums.ObjectKind battleNPC = Dalamud.Game.ClientState.Objects.Enums.ObjectKind.BattleNpc;
-            if (MarksmansSpitePvP2.CanUse(out act) &&
-                CustomRotationEx.CurrentLimitBreakLevel == 1 &&
-                CurrentTarget != null &&
-                CurrentTarget.ObjectKind != battleNPC &&
-                !CustomRotationEx.IsPvPNpc(CurrentTarget.Name.ToString()))
-            {
-                //TODO: instead of checking isjobcategory should use enemy names like "Summoner" or "Paladin" as it will be more acurate
-                if (CurrentTarget.IsJobCategory(JobRole.RangedMagical) && CurrentTarget.CurrentHp >= 10000 && CurrentTarget.CurrentHp <= 32400) return true;
-                else if (CurrentTarget.IsJobCategory(JobRole.Healer) && CurrentTarget.CurrentHp >= 10000 && CurrentTarget.CurrentHp <= 30000) return true;
-                else if (CurrentTarget.IsJobCategory(JobRole.RangedPhysical) && CurrentTarget.CurrentHp >= 10000 && CurrentTarget.CurrentHp <= 32400) return true;
-                else if (CurrentTarget.IsJobCategory(JobRole.Melee) && CurrentTarget.CurrentHp >= 12000 && CurrentTarget.CurrentHp <= 15000) return true;
-                else if (CurrentTarget.IsJobCategory(JobRole.Tank) && CurrentTarget.CurrentHp >= 12000 && CurrentTarget.CurrentHp <= 15000) return true;
-                else if (PvPTargetHasWildfire && PvPTargetWildfireStatusTime <= 2f && CurrentTarget.CurrentHp >= 12000 && CurrentTarget.CurrentHp <= 35000) return true;
-                else if (CurrentTarget.HasStatus(true, StatusID.ChainSaw) && CurrentTarget.CurrentHp >= 12000 && CurrentTarget.CurrentHp <= 40000) return true;
+        //if (ExperimentalFeature)
+        //{
+        //    if (ExperimentalLBFeature)
+        //    {
+        //        if (UseMCHLBNEW/*UseMCHLB4*/(out act)) // Should be best one to use
+        //        {
+        //            return true;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (MarksmansSpitePvP2.CanUse(out act) && CustomRotationEx.CurrentLimitBreakLevel == 1)
+        //        {
+        //            return true;
+        //        }
+        //    }
+        //}
+        //else
+        //{
+        //    Dalamud.Game.ClientState.Objects.Enums.ObjectKind battleNPC = Dalamud.Game.ClientState.Objects.Enums.ObjectKind.BattleNpc;
+        //    if (MarksmansSpitePvP2.CanUse(out act) &&
+        //        CustomRotationEx.CurrentLimitBreakLevel == 1 &&
+        //        CurrentTarget != null &&
+        //        CurrentTarget.ObjectKind != battleNPC &&
+        //        !CustomRotationEx.IsPvPNpc(CurrentTarget.Name.ToString()))
+        //    {
+        //        //TODO: instead of checking isjobcategory should use enemy names like "Summoner" or "Paladin" as it will be more acurate
+        //        if (CurrentTarget.IsJobCategory(JobRole.RangedMagical) && CurrentTarget.CurrentHp >= 10000 && CurrentTarget.CurrentHp <= 32400) return true;
+        //        else if (CurrentTarget.IsJobCategory(JobRole.Healer) && CurrentTarget.CurrentHp >= 10000 && CurrentTarget.CurrentHp <= 30000) return true;
+        //        else if (CurrentTarget.IsJobCategory(JobRole.RangedPhysical) && CurrentTarget.CurrentHp >= 10000 && CurrentTarget.CurrentHp <= 32400) return true;
+        //        else if (CurrentTarget.IsJobCategory(JobRole.Melee) && CurrentTarget.CurrentHp >= 12000 && CurrentTarget.CurrentHp <= 15000) return true;
+        //        else if (CurrentTarget.IsJobCategory(JobRole.Tank) && CurrentTarget.CurrentHp >= 12000 && CurrentTarget.CurrentHp <= 15000) return true;
+        //        else if (PvPTargetHasWildfire && PvPTargetWildfireStatusTime <= 2f && CurrentTarget.CurrentHp >= 12000 && CurrentTarget.CurrentHp <= 35000) return true;
+        //        else if (CurrentTarget.HasStatus(true, StatusID.ChainSaw) && CurrentTarget.CurrentHp >= 12000 && CurrentTarget.CurrentHp <= 40000) return true;
 
-            }
-        }
+        //    }
+        //}
 
         // Chainsaw
         if (!IsPvPOverheated && ChainSawPvP.CanUse(out act, usedUp: false, skipAoeCheck: true) && Player.HasStatus(true, StatusID.ChainSawPrimed))
@@ -510,11 +506,6 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         //{
         //    return false;
         //}
-
-        if (CustomRotation.LimitBreakLevel == 0)
-        {
-            return false;
-        }
 
         // https://na.finalfantasyxiv.com/lodestone/playguide/contentsguide/frontline/4/
         const int EstimatedLBDamage = 28000;
@@ -666,6 +657,31 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
     }
     #endregion
 
+    //[System.ComponentModel.Description("Limit Break Level")]
+    //internal unsafe static byte CurrentLimitBreakLevel
+    //{
+    //    get
+    //    {
+    //        FFXIVClientStructs.FFXIV.Client.Game.UI.LimitBreakController limitBreakController = FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance()->LimitBreakController;
+    //        ushort currentUnits = *&limitBreakController.CurrentUnits;
 
+    //        if (currentUnits >= 9000)
+    //        {
+    //            return 3;
+    //        }
+    //        else if (currentUnits >= 6000)
+    //        {
+    //            return 2;
+    //        }
+    //        else if (currentUnits >= 3000)
+    //        {
+    //            return 1;
+    //        }
+    //        else
+    //        {
+    //            return 0; // Assuming 0 is the default or undefined state.
+    //        }
+    //    }
+    //}
 
 }
