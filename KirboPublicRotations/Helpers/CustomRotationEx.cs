@@ -246,7 +246,7 @@ internal unsafe class CustomRotationEx : MachinistRotation
     private const string KirboLogMessage = "[Kirbo Public Rotations]";
 
     /// <summary>
-    /// Sends a debug level message to the Dalamud log console.
+    /// Sends a debug level message to the Dalamud log console.<br/> "[Kirbo Public Rotations] Rotation initialized successfully."
     /// </summary>
     /// <param name="message"></param>
     internal static void Debug(string message) => Serilog.Log.Debug("{KirboLogMessage} {Message}", KirboLogMessage, message);

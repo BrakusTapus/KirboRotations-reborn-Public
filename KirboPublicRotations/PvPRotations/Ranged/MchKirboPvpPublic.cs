@@ -1,16 +1,16 @@
-using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Style;
 using Dalamud.Interface.Utility.Raii;
+using ECommons.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using KirboPublicRotations.Helpers;
 
 namespace KirboPublicRotations.PvPRotations.Ranged;
 
 [BetaRotation]
-[Rotation("Kirbo - MCH [Public]", CombatType.PvP, GameVersion = "7.3", Description = "Kirbo's public PvP Rotation for MCH. Uses LB!")]
+[Rotation("Kirbo - MCH [Public]", CombatType.PvP, GameVersion = "7.3", Description = "Kirbo's public Machinist PvP Rotation!")]
 [Api(6)]
-internal sealed class MchKirboPvpPublic : MachinistRotation
+public sealed class MchKirboPvpPublic : MachinistRotation
 {
     #region Properties
     private static bool HasActiveGuard => Player.HasStatus(true, StatusID.Guard);
@@ -115,99 +115,102 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
     //    return false;
     //}
 
-    [RotationConfig(CombatType.PvP, Name = "Enable experimental features.")]
-    private bool ExperimentalFeature { get; set; } = true;
+    // TODO: currently not working as rsr cannot load 'FFXIVClientStructs.FFXIV.Client.Game.UI.LimitBreakController' to check for lb value
+    //[RotationConfig(CombatType.PvP, Name = "Enable experimental features.")]
+    //private bool ExperimentalFeature { get; set; } = true;
 
-    [RotationConfig(CombatType.PvP, Name = "Enable experimental LB features.")]
-    private bool ExperimentalLBFeature { get; set; } = true;
+    //[RotationConfig(CombatType.PvP, Name = "Enable experimental LB features.")]
+    //private bool ExperimentalLBFeature { get; set; } = true;
     #endregion Rotation Config
 
     #region Status Display
     public override void DisplayStatus()
     {
-        //Get available width in the current ImGui window
-        float availableWidth = ImGui.GetContentRegionAvail().X;
-        using (ImRaii.IEndObject child = ImRaii.Child("playerinfo", new Vector2((availableWidth / 2), 200), true))
-        {
-            if (child.Success)
-            {
-                ImGui.Text("Player HPP: " + Player.GetHealthRatio());
-                ImGui.Text("LimitBreakLevel: " + CustomRotationEx.CurrentLimitBreakLevel);
-                ImGuiToolTipsKirbo.HoveredTooltip("CurrentUnits: " + CustomRotationEx.CurrentCurrentUnits);
-                ImGui.NewLine();
-
-                ImGui.Text("HeatStacks: " + PvP_OverheatedStacks);
-                ImGui.Text("Status Time Analysis: " + AnalysisStatusTime.ToString("F2") + "s");
-                ImGui.NewLine();
-
-                ImGui.Text("IsPvPOverheated (Player): " + IsPvPOverheated);
-                ImGui.Text("Overheated StatusTime: " + OverheatedStatusTime.ToString("F2") + "s");
-                ImGui.NewLine();
-
-                ImGui.Text("PlayerHasWildfire: " + PlayerHasWildfire);
-                ImGui.Text("PlayerWildfireStatusTime: " + PlayerWildfireStatusTime.ToString("F2") + "s");
-                ImGui.NewLine();
-
-                ImGui.Text("PvPTargetHasWildfire: " + PvPTargetHasWildfire);
-                ImGui.Text("PvPTargetWildfireStatusTime: " + PvPTargetWildfireStatusTime.ToString("F2") + "s");
-                ImGui.NewLine();
-
-                ImGui.Text("BlastChargePvP Target: " + BlastChargePvP.Target.Target?.ToString());
-                ImGui.Text("BishopAutoturretPvP Target: " + BishopAutoturretPvP.Target.Target?.ToString());
-                ImGui.Text("BioblasterPvP Target: " + BioblasterPvP.Target.Target?.ToString());
-                ImGui.NewLine();
-
-                ImGui.TextColored(ImGuiColors.DalamudViolet, $"Player Is Casting: {Player.IsCasting}");
-
-                ImGui.Text($"Player Cast Action ID: {(Player.IsCasting ? Player.CastActionId.ToString() : "N/A")}");
-                ImGui.Text($"Player Cast Action ID: " + Player.CastActionId.ToString());
-
-                ImGui.Text($"Player Targeting Player: {Player.TargetObject?.GameObjectId == Player.GameObjectId}");
-                ImGui.Text($"TargetObject GameObjectId: {Player.TargetObject?.GameObjectId.ToString()}");
-                ImGui.Text($"Player GameObjectId: {Player.GameObjectId.ToString()}");
-                ImGui.NewLine();
-            }
-        }
-        ImGui.SameLine();
-        using (ImRaii.IEndObject child2 = ImRaii.Child("targetinfo", new Vector2(((availableWidth / 2) - 20), 200), true))
-        {
-            if (child2.Success)
-            {
-                if (CurrentTarget != null)
-                {
-                    ImGui.Text($"Current Target Name: {CurrentTarget.Name}");
-                    ImGui.Text("Target HP ratio: " + CurrentTarget.GetHealthRatio());
-                    ImGui.Text("Distance: " + CurrentTarget.DistanceToPlayer().ToString("F1") + "y");
-                    ImGui.NewLine();
-
-                    ImGui.Text($"Current Target Is Casting: {CurrentTarget.IsCasting}");
-
-                    ImGui.Text($"Current Target Cast Action ID: {(CurrentTarget.IsCasting ? CurrentTarget.CastActionId.ToString() : "N/A")}");
-
-                    ImGui.Text($"Current Target Targeting Player: {CurrentTarget.TargetObject?.GameObjectId == Player.GameObjectId}");
-                    ImGui.Text($"Current Target GameObjectId: {CurrentTarget.GameObjectId.ToString()}");
-                    ImGui.Text($"TargetObject's GameObjectId: {CurrentTarget.TargetObject?.GameObjectId.ToString()}");
-                }
-                else
-                {
-                    ImGui.TextColored(ImGuiColors.DalamudRed, "We don't have a target!");
-                }
-                ImGui.NewLine();
-            }
-        }
-        foreach (IBattleChara enemy in CustomRotation.AllHostileTargets)
-        {
-            if (enemy == null) continue;
-
-            string header = $"Name: {enemy.Name}, GameObjectId: {enemy.GameObjectId}";
-            if (ImGui.CollapsingHeader(header))
-            {
-                ImGui.Text($"- Is Casting: {(enemy.IsCasting ? "Yes" : "No")}");
-                ImGui.Text($"- Cast Action ID: {(enemy.IsCasting ? enemy.CastActionId.ToString() : "N/A")}");
-                ImGui.Text($"- Targeting Player: {(enemy.CastTargetObjectId == Player.GameObjectId ? "Yes" : "No")}");
-            }
-        }
+        // TODO fix this when no longer stg branch
         base.DisplayStatus();
+        ////Get available width in the current ImGui window
+        //float availableWidth = ImGui.GetContentRegionAvail().X;
+        //using (ImRaii.IEndObject child = ImRaii.Child("playerinfo", new Vector2((availableWidth / 2), 200), true))
+        //{
+        //    if (child.Success)
+        //    {
+        //        ImGui.Text("Player HPP: " + Player.GetHealthRatio());
+        //        ImGui.Text("LimitBreakLevel: " + CustomRotationEx.CurrentLimitBreakLevel);
+        //        ImGuiToolTipsKirbo.HoveredTooltip("CurrentUnits: " + CustomRotationEx.CurrentCurrentUnits);
+        //        ImGui.NewLine();
+
+        //        ImGui.Text("HeatStacks: " + PvP_OverheatedStacks);
+        //        ImGui.Text("Status Time Analysis: " + AnalysisStatusTime.ToString("F2") + "s");
+        //        ImGui.NewLine();
+
+        //        ImGui.Text("IsPvPOverheated (Player): " + IsPvPOverheated);
+        //        ImGui.Text("Overheated StatusTime: " + OverheatedStatusTime.ToString("F2") + "s");
+        //        ImGui.NewLine();
+
+        //        ImGui.Text("PlayerHasWildfire: " + PlayerHasWildfire);
+        //        ImGui.Text("PlayerWildfireStatusTime: " + PlayerWildfireStatusTime.ToString("F2") + "s");
+        //        ImGui.NewLine();
+
+        //        ImGui.Text("PvPTargetHasWildfire: " + PvPTargetHasWildfire);
+        //        ImGui.Text("PvPTargetWildfireStatusTime: " + PvPTargetWildfireStatusTime.ToString("F2") + "s");
+        //        ImGui.NewLine();
+
+        //        ImGui.Text("BlastChargePvP Target: " + BlastChargePvP.Target.Target?.ToString());
+        //        ImGui.Text("BishopAutoturretPvP Target: " + BishopAutoturretPvP.Target.Target?.ToString());
+        //        ImGui.Text("BioblasterPvP Target: " + BioblasterPvP.Target.Target?.ToString());
+        //        ImGui.NewLine();
+
+        //        ImGui.TextColored(ImGuiColors.DalamudViolet, $"Player Is Casting: {Player.IsCasting}");
+
+        //        ImGui.Text($"Player Cast Action ID: {(Player.IsCasting ? Player.CastActionId.ToString() : "N/A")}");
+        //        ImGui.Text($"Player Cast Action ID: " + Player.CastActionId.ToString());
+
+        //        ImGui.Text($"Player Targeting Player: {Player.TargetObject?.GameObjectId == Player.GameObjectId}");
+        //        ImGui.Text($"TargetObject GameObjectId: {Player.TargetObject?.GameObjectId.ToString()}");
+        //        ImGui.Text($"Player GameObjectId: {Player.GameObjectId.ToString()}");
+        //        ImGui.NewLine();
+        //    }
+        //}
+        //ImGui.SameLine();
+        //using (ImRaii.IEndObject child2 = ImRaii.Child("targetinfo", new Vector2(((availableWidth / 2) - 20), 200), true))
+        //{
+        //    if (child2.Success)
+        //    {
+        //        if (CurrentTarget != null)
+        //        {
+        //            ImGui.Text($"Current Target Name: {CurrentTarget.Name}");
+        //            ImGui.Text("Target HP ratio: " + CurrentTarget.GetHealthRatio());
+        //            ImGui.Text("Distance: " + CurrentTarget.DistanceToPlayer().ToString("F1") + "y");
+        //            ImGui.NewLine();
+
+        //            ImGui.Text($"Current Target Is Casting: {CurrentTarget.IsCasting}");
+
+        //            ImGui.Text($"Current Target Cast Action ID: {(CurrentTarget.IsCasting ? CurrentTarget.CastActionId.ToString() : "N/A")}");
+
+        //            ImGui.Text($"Current Target Targeting Player: {CurrentTarget.TargetObject?.GameObjectId == Player.GameObjectId}");
+        //            ImGui.Text($"Current Target GameObjectId: {CurrentTarget.GameObjectId.ToString()}");
+        //            ImGui.Text($"TargetObject's GameObjectId: {CurrentTarget.TargetObject?.GameObjectId.ToString()}");
+        //        }
+        //        else
+        //        {
+        //            ImGui.TextColored(ImGuiColors.DalamudRed, "We don't have a target!");
+        //        }
+        //        ImGui.NewLine();
+        //    }
+        //}
+        //foreach (IBattleChara enemy in CustomRotation.AllHostileTargets)
+        //{
+        //    if (enemy == null) continue;
+
+        //    string header = $"Name: {enemy.Name}, GameObjectId: {enemy.GameObjectId}";
+        //    if (ImGui.CollapsingHeader(header))
+        //    {
+        //        ImGui.Text($"- Is Casting: {(enemy.IsCasting ? "Yes" : "No")}");
+        //        ImGui.Text($"- Cast Action ID: {(enemy.IsCasting ? enemy.CastActionId.ToString() : "N/A")}");
+        //        ImGui.Text($"- Targeting Player: {(enemy.CastTargetObjectId == Player.GameObjectId ? "Yes" : "No")}");
+        //    }
+        //}
+        //base.DisplayStatus();
     }
     #endregion
 
@@ -278,15 +281,16 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
             return true;
         }
 
-        // UseEagleEyeShot
-        //if (UseEagleEyeShot(out act))
-        //{
-        //    return true;
-        //}
+        // Eagle Eye Shot
+        if (UseEagleEyeShot(out act))
+        {
+            return true;
+        }
 
         return base.EmergencyAbility(nextGCD, out act);
     }
 
+    [RotationDesc(ActionID.GuardPvP)]
     protected override bool DefenseSingleAbility(IAction nextGCD, out IAction? action)
     {
         action = null;
@@ -310,6 +314,12 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         }
 
         if (EmergencyHealing && EmergencyLowHP(out act))
+        {
+            return true;
+        }
+
+        // early analysis
+        if (UseEarlyAnalysis(out act))
         {
             return true;
         }
@@ -338,6 +348,8 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
                 return true;
             }
         }
+
+        // TODO: currently not working as rsr cannot load 'FFXIVClientStructs.FFXIV.Client.Game.UI.LimitBreakController' to check for lb value
 
         //if (ExperimentalFeature)
         //{
@@ -390,7 +402,7 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
         }
 
         // Drill old
-        if (!IsPvPOverheated && HasHostilesInRange && DrillPvP.CanUse(out act, usedUp: true) && Player.HasStatus(true, StatusID.DrillPrimed))
+        if (!IsPvPOverheated && DrillPvP.CanUse(out act, usedUp: true) && Player.HasStatus(true, StatusID.DrillPrimed))
         {
             return true;
         }
@@ -655,33 +667,26 @@ internal sealed class MchKirboPvpPublic : MachinistRotation
 
         return false;
     }
+
+    private bool UseEarlyAnalysis(out IAction? action)
+    {
+        action = null;
+
+        if (InCombat || NumberOfAllHostilesInMaxRange == 0 || Player.HasStatus(true, StatusID.Analysis))
+        {
+            return false;
+        }
+
+        if (Player.HasStatus(true, StatusID.DrillPrimed))
+        {
+            if (AnalysisPvP.CanUse(out action))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
     #endregion
-
-    //[System.ComponentModel.Description("Limit Break Level")]
-    //internal unsafe static byte CurrentLimitBreakLevel
-    //{
-    //    get
-    //    {
-    //        FFXIVClientStructs.FFXIV.Client.Game.UI.LimitBreakController limitBreakController = FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance()->LimitBreakController;
-    //        ushort currentUnits = *&limitBreakController.CurrentUnits;
-
-    //        if (currentUnits >= 9000)
-    //        {
-    //            return 3;
-    //        }
-    //        else if (currentUnits >= 6000)
-    //        {
-    //            return 2;
-    //        }
-    //        else if (currentUnits >= 3000)
-    //        {
-    //            return 1;
-    //        }
-    //        else
-    //        {
-    //            return 0; // Assuming 0 is the default or undefined state.
-    //        }
-    //    }
-    //}
 
 }
